@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Default Title')</title>
     <!-- Add Bootstrap CSS CDN -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Optionally, add custom CSS here -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
@@ -29,4 +29,3 @@
     <script src="{{ asset('js/app.js') }}"></script>
 </body>
 </html>
-            
