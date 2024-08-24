@@ -41,4 +41,9 @@ class TaskController extends Controller
         Task::find($id)->delete();
         return response()->json(['success' => true]);
     }
+    public function edit($id)
+    {
+        $task = Task::findOrFail($id);
+        return response()->json($task);
+    }
 }

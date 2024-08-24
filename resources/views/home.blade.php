@@ -215,7 +215,6 @@
         background-color: #0056b3;
     }
 </style>
-
 <nav>
     <ul class="flex-3">
         <li><a href="{{ url('/') }}">Home</a></li>
@@ -312,22 +311,26 @@
 
         // Handle task update
         $('#editForm').on('submit', function(e) {
-            e.preventDefault();
-            var id = $('#editForm').attr('data-id');
-            var taskName = $('#taskName').val();
-            $.ajax({
-                url: '{{ url('/tasks') }}/' + id,
-                type: 'PUT',
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                    name: taskName
-                },
-                success: function(response) {
-                    $('li[data-id="' + id + '"] span').text(response.name);
-                    closeModal();
-                }
-            });
-        });
+    e.preventDefault();
+    var id = $('#editForm').attr('data-id');
+    var taskName = $('#taskName').val();
+
+    $.ajax({
+        url: '{{ url('/tasks') }}/' + id,
+        type: 'PUT',
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            name: taskName
+        },
+        success: function(response) {
+            // Update the list item in the DOM with the new name
+            $('li[data-id="' + id + '"] span').text(response.name);
+
+            // Close the modal
+            closeModal();
+        }
+    });
+});
 
         // Handle task deletion
         window.deleteTask = function(id) {
@@ -344,15 +347,31 @@
         };
     });
 
-    function openModal(id, name) {
-        $('#editForm').attr('data-id', id);
-        $('#taskName').val(name);
-        $('#editModal').show();
-    }
+    function openModal(id) {
+    // Clear any existing value in the input field
+    $('#taskName').val('');
 
-    function closeModal() {
-        $('#editModal').hide();
-    }
+    // Set the form data-id to the current task ID
+    $('#editForm').attr('data-id', id);
+
+    // Fetch the current task name from the server
+    $.ajax({
+        url: '{{ url('/tasks') }}/' + id + '/edit',
+        type: 'GET',
+        success: function(response) {
+            // Set the input field value to the current task name
+            $('#taskName').val(response.name).focus();
+            
+            // Show the modal
+            $('#editModal').show();
+        }
+    });
+}
+
+
+function closeModal() {
+    $('#editModal').hide(); // Hide the modal
+}
 
     $(window).on('click', function(event) {
         if ($(event.target).is('#editModal')) {
