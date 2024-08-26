@@ -434,14 +434,15 @@ $('#taskForm').on('submit', function(e) {
         }
     });
 });
-
 $('#editForm').on('submit', function(e) {
     e.preventDefault();
-    var id = $('#editForm').attr('data-id');
+    var id = $('#editForm').data('id');
     var taskName = $('#taskName').val();
     var taskDesc = $('#taskDesc').val();
     var taskStatus = $('input[name="status"]:checked').val();
     var taskImagePath = $('#taskImagePath').val();
+
+    console.log('Submitting updated task:', { id, taskName, taskDesc, taskStatus, taskImagePath });
 
     $.ajax({
         url: '{{ url('/tasks') }}/' + id,
@@ -454,6 +455,7 @@ $('#editForm').on('submit', function(e) {
             image_path: taskImagePath
         },
         success: function(response) {
+            console.log('Update successful:', response);
             var row = $('#tasksTable tbody tr[data-id="' + id + '"]');
             row.find('td').eq(0).text(response.name);
             row.find('td').eq(1).text(response.description);
@@ -467,6 +469,7 @@ $('#editForm').on('submit', function(e) {
         }
     });
 });
+
 
 window.deleteTask = function(id) {
     $.ajax({
@@ -484,25 +487,35 @@ window.deleteTask = function(id) {
     });
 };
 
-function openModal(id, name, description, status, imagePath) {
-    $('#taskName').val(name);
-    $('#taskDesc').val(description);
-    $('#taskImagePath').val(imagePath);
+function openModal(id) {
+    $.ajax({
+        url: '{{ url('/tasks') }}/' + id,
+        type: 'GET',
+        success: function(response) {
+            // Populate modal with the latest data
+            $('#taskName').val(response.name);
+            $('#taskDesc').val(response.description);
+            $('#taskImagePath').val(response.image_path);
+            
+            // Set the status radio button
+            $('input[name="status"][value="' + response.status + '"]').prop('checked', true);
 
-    $('input[name="status"]').each(function() {
-        if ($(this).val() === status) {
-            $(this).prop('checked', true);
+            $('#editForm').data('id', response.id);
+            $('#editModal').show();
+        },
+        error: function() {
+            alert('Failed to fetch task data.');
         }
     });
-
-    $('#editForm').attr('data-id', id);
-    $('#editModal').show();
 }
 
 function closeModal() {
     $('#editModal').hide();
+    $('#taskName').val('');
+    $('#taskDesc').val('');
+    $('#taskImagePath').val('');
+    $('input[name="status"]').prop('checked', false);
 }
-
 $(window).on('click', function(event) {
     if ($(event.target).is('#editModal')) {
         closeModal();
