@@ -287,6 +287,12 @@
 .actions button.delete:hover {
     opacity: 0.8;
 }
+.flex-2{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+}
 </style>
 
 <nav>
@@ -310,7 +316,7 @@
         @endif
 
 
-
+<div class="flex-2">
 <!-- Form for inserting task -->
 <form id="taskForm" method="POST">
     @csrf
@@ -364,6 +370,7 @@
             @endforeach
         </tbody>
     </table>
+</div>
 </div>
 
 <!-- Modal Structure -->
