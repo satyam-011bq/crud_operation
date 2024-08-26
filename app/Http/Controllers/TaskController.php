@@ -2,48 +2,62 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Task;
+use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    public function store(Request $request)
-    {
-        $request->validate([
-            'task' => 'required|max:255',
-        ]);
-
-        $task = Task::create(['name' => $request->input('task')]);
-
-        return response()->json([
-            'id' => $task->id,
-            'name' => $task->name
-        ]);
-    }
-
+    // Display a listing of tasks.
     public function index()
     {
         $tasks = Task::all();
         return view('home', compact('tasks'));
     }
 
-    public function update(Request $request, $id)
+    // Store a newly created task in storage.
+    public function store(Request $request)
     {
-        $task = Task::find($id);
-        $task->name = $request->input('name');
-        $task->save();
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|string|in:done,not-done',
+            'image_path' => 'nullable|url',
+        ]);
 
-        return response()->json(['name' => $task->name]);
+        $task = Task::create($request->all());
+
+        return response()->json($task, 201); // Return the created task as JSON.
     }
 
-    public function destroy($id)
-    {
-        Task::find($id)->delete();
-        return response()->json(['success' => true]);
-    }
-    public function edit($id)
+    // Display the specified task.
+    public function show($id)
     {
         $task = Task::findOrFail($id);
         return response()->json($task);
+    }
+
+    // Update the specified task in storage.
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|string|in:done,not-done',
+            'image_path' => 'nullable|url',
+        ]);
+
+        $task = Task::findOrFail($id);
+        $task->update($request->all());
+
+        return response()->json($task);
+    }
+
+    // Remove the specified task from storage.
+    public function destroy($id)
+    {
+        $task = Task::findOrFail($id);
+        $task->delete();
+
+        return response()->json(['message' => 'Task deleted successfully']);
     }
 }
