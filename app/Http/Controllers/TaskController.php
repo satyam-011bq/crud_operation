@@ -37,21 +37,20 @@ class TaskController extends Controller
     }
 
     // Update the specified task in storage.
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|string|in:done,not-done',
-            'image_path' => 'nullable|url',
-        ]);
-
+    public function update(Request $request, $id) {
         $task = Task::findOrFail($id);
-        $task->update($request->all());
-
+        $task->name = $request->input('name');
+        $task->description = $request->input('description');
+        $task->status = $request->input('status');
+        $task->image_path = $request->input('image_path');
+        $task->save();
+    
+        \Log::info('Task Updated:', $task->toArray()); // Log the updated task data
+    
         return response()->json($task);
     }
-
+    
+    
     // Remove the specified task from storage.
     public function destroy($id)
     {

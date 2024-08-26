@@ -315,6 +315,8 @@
 <form id="taskForm" method="POST">
     @csrf
     <input type="text" name="name" placeholder="Enter title" id="taskInput">
+    <br>
+    <br>
     <input type="text" name="description" placeholder="Enter description" id="descInput">
     <br><br>
     <label for="status-done">
@@ -328,6 +330,10 @@
     <label for="image-url">Image URL:</label>
     <input type="url" id="imagePathInput" name="image_url" placeholder="Enter image URL">
     <br><br>
+    <label for="image-upload">Upload Image:</label>
+    <input type="file" id="imageUpload" name="image" accept="image/*">
+    <br>
+    <br>
     <button type="submit">Add Task</button>
 </form>
 
@@ -434,15 +440,14 @@ $('#taskForm').on('submit', function(e) {
         }
     });
 });
+
 $('#editForm').on('submit', function(e) {
     e.preventDefault();
     var id = $('#editForm').data('id');
     var taskName = $('#taskName').val();
     var taskDesc = $('#taskDesc').val();
-    var taskStatus = $('input[name="status"]:checked').val();
+    var taskStatus = $('input[name="status"]:checked').val(); // Get the selected status
     var taskImagePath = $('#taskImagePath').val();
-
-    console.log('Submitting updated task:', { id, taskName, taskDesc, taskStatus, taskImagePath });
 
     $.ajax({
         url: '{{ url('/tasks') }}/' + id,
@@ -455,11 +460,10 @@ $('#editForm').on('submit', function(e) {
             image_path: taskImagePath
         },
         success: function(response) {
-            console.log('Update successful:', response);
             var row = $('#tasksTable tbody tr[data-id="' + id + '"]');
             row.find('td').eq(0).text(response.name);
             row.find('td').eq(1).text(response.description);
-            row.find('td').eq(2).text(response.status);
+            row.find('td').eq(2).text(response.status); // Ensure status is updated
             row.find('img').attr('src', response.image_path);
 
             closeModal();
@@ -469,7 +473,6 @@ $('#editForm').on('submit', function(e) {
         }
     });
 });
-
 
 window.deleteTask = function(id) {
     $.ajax({
