@@ -24,5 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('tasks');
+        Schema::table('tasks', function (Blueprint $table) {
+            $table->string('image_path'); // yeh wahi column type hona chahiye jo pehle tha
+        });
     }
 };

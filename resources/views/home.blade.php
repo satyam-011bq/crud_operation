@@ -62,24 +62,25 @@
         margin-top: 10px;
     }
 
-    input[type="text"], 
+    input[type="text"],
     input[type="url"] {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: 500px;
-    margin: 10px 0;
-}
-    #descInput{
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: 500px;
-    gap: 10p;
-    margin: 10px 0px;
-    height: 100px;
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 500px;
+        margin: 10px 0;
+    }
+
+    #descInput {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 500px;
+        gap: 10p;
+        margin: 10px 0px;
+        height: 100px;
     }
 
     button {
@@ -235,64 +236,73 @@
     .modal-content .update:hover {
         background-color: #0056b3;
     }
+
     .tasks-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-.tasks-table th, .tasks-table td {
-    padding: 12px;
-    text-align: left;
-}
+    .tasks-table th,
+    .tasks-table td {
+        padding: 12px;
+        text-align: left;
+    }
 
-.tasks-table th {
-    background-color: #f4f4f4;
-}
+    .tasks-table th {
+        background-color: #f4f4f4;
+    }
 
-.tasks-table td {
-    border-bottom: 1px solid #ddd;
-}
+    .tasks-table td {
+        border-bottom: 1px solid #ddd;
+    }
 
-.task-description {
-    max-width: 600px; /* Adjust as needed */
-    word-wrap: break-word;
-}
+    .task-description {
+        max-width: 600px;
+        /* Adjust as needed */
+        word-wrap: break-word;
+    }
 
-.task-image {
-    max-width: 100px; /* Adjust as needed */
-    height: auto;
-}
+    .task-image {
+        max-width: 100px;
+        /* Adjust as needed */
+        height: auto;
+    }
 
-.actions {
-    display: flex;
-    gap: 10px;
-}
+    .actions {
+        display: flex;
+        gap: 10px;
+    }
 
-.actions button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    cursor: pointer;
-}
+    .actions button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        cursor: pointer;
+    }
 
-.actions button.delete {
-    background-color: #dc3545;
-}
+    .actions button.delete {
+        background-color: #dc3545;
+    }
 
-.actions button:hover {
-    opacity: 0.8;
-}
+    .actions button:hover {
+        opacity: 0.8;
+    }
 
-.actions button.delete:hover {
-    opacity: 0.8;
-}
-.flex-2{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 10px;
-}
+    .actions button.delete:hover {
+        opacity: 0.8;
+    }
+
+    .flex-2 {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    img {
+        width: 50px;
+    }
 </style>
 
 <nav>
@@ -314,125 +324,125 @@
             {{ session('success') }}
         </div>
         @endif
+        <div class="flex-2">
+            <!-- Task Insert Form -->
+            <form id="taskForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="text" name="name" placeholder="Enter title" id="taskInput">
+                <br><br>
+                <input type="text" name="description" placeholder="Enter description" id="descInput">
+                <br><br>
+                <label for="status-done">
+                    <input type="radio" id="status-done" name="status" value="done">
+                    Done
+                </label><br>
+                <label for="status-not-done">
+                    <input type="radio" id="status-not-done" name="status" value="not-done">
+                    Not Done
+                </label><br><br>
+                <label for="image-upload">Upload Image:</label>
+                <input type="file" id="imageUpload" name="image" accept="image/*">
+                <br><br>
+                <button type="submit">Add Task</button>
+            </form>
 
+            <div class="tasks-container">
+                <h1>All Tasks</h1>
+                <table class="tasks-table" id="tasksTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Image</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tasksList">
+                        @foreach($tasks as $task)
+                        <tr data-id="{{ $task->id }}">
+                            <td>{{ $task->name }}</td>
+                            <td class="task-description">{{ $task->description }}</td>
+                            <td>{{ $task->status }}</td>
+                            <td>
+                                @if($task->images->isNotEmpty())
+                                @foreach($task->images as $image)
+                                <img src="{{ asset($image->image_path) }}" alt="Task Image" class="task-image">
+                                @endforeach
+                                @else
+                                No Image
+                                @endif
+                            </td>
+                            <td class="actions">
+                                <button class="edit" onclick="openModal({{ $task->id }}, '{{ $task->name }}', '{{ $task->description }}', '{{ $task->status }}', '{{ $task->images->first()->image_path ?? '' }}')">Edit</button>
+                                <button class="delete" onclick="deleteTask({{ $task->id }})">Delete</button>
+                            </td>
+                        </tr>
+                        @endforeach
 
-<div class="flex-2">
-<!-- Form for inserting task -->
-<form id="taskForm" method="POST">
-    @csrf
-    <input type="text" name="name" placeholder="Enter title" id="taskInput">
-    <br>
-    <br>
-    <input type="text" name="description" placeholder="Enter description" id="descInput">
-    <br><br>
-    <label for="status-done">
-        <input type="radio" id="status-done" name="status" value="done">
-        Done
-    </label><br>
-    <label for="status-not-done">
-        <input type="radio" id="status-not-done" name="status" value="not-done">
-        Not Done
-    </label><br><br>
-    <label for="image-url">Image URL:</label>
-    <input type="url" id="imagePathInput" name="image_url" placeholder="Enter image URL">
-    <br><br>
-    <label for="image-upload">Upload Image:</label>
-    <input type="file" id="imageUpload" name="image" accept="image/*">
-    <br>
-    <br>
-    <button type="submit">Add Task</button>
-</form>
-
-<div class="tasks-container">
-    <h1>All Tasks</h1>
-    <table class="tasks-table" id="tasksTable">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Image</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="tasksList">
-            @foreach($tasks as $task)
-            <tr data-id="{{ $task->id }}">
-                <td>{{ $task->name }}</td>
-                <td class="task-description">{{ $task->description }}</td>
-                <td>{{ $task->status }}</td>
-                <td><img src="{{ $task->image_path }}" alt="Task Image" class="task-image"></td>
-                <td class="actions">
-                    <button class="edit" onclick="openModal({{ $task->id }}, '{{ $task->name }}', '{{ $task->description }}', '{{ $task->status }}', '{{ $task->image_path }}')">Edit</button>
-                    <button class="delete" onclick="deleteTask({{ $task->id }})">Delete</button>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
-</div>
-
-<!-- Modal Structure -->
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <form id="editForm" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="form-group">
-                <label for="taskName">Task Name</label>
-                <input type="text" name="name" id="taskName" value="">
+                    </tbody>
+                </table>
             </div>
-            <div class="form-group">
-                <label for="taskDesc">Description</label>
-                <input type="text" name="description" id="taskDesc" value="">
-            </div>
-            <div class="form-group">
-                <label>Status</label><br>
-                <label>
-                    <input type="radio" name="status" value="done"> Done
-                </label>
-                <label>
-                    <input type="radio" name="status" value="not-done"> Not Done
-                </label>
-            </div>
-            <div class="form-group">
-                <label for="taskImagePath">Image URL</label>
-                <input type="url" name="image_path" id="taskImagePath" value="">
-            </div>
-            <button type="submit" class="update">Update</button>
-        </form>
-    </div>
-</div>
+        </div>
 
-<script>
-$('#taskForm').on('submit', function(e) {
+        <!-- Modal Structure -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <form id="editForm" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <div class="form-group">
+                        <label for="taskName">Task Name</label>
+                        <input type="text" name="name" id="taskName" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDesc">Description</label>
+                        <input type="text" name="description" id="taskDesc" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label><br>
+                        <label>
+                            <input type="radio" name="status" value="done"> Done
+                        </label>
+                        <label>
+                            <input type="radio" name="status" value="not-done"> Not Done
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskImage">Upload Image:</label>
+                        <input type="file" name="image" id="taskImage">
+                        <input type="hidden" name="image_path" id="taskImagePath">
+                    </div>
+                    <button type="submit" class="update">Update</button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+          $('#taskForm').on('submit', function(e) {
     e.preventDefault();
-    var taskName = $('#taskInput').val();
-    var taskDesc = $('#descInput').val();
-    var taskStatus = $('input[name="status"]:checked').val();
-    var taskImagePath = $('#imagePathInput').val();
+    var formData = new FormData(this); // Use FormData to handle file uploads
 
     $.ajax({
         url: '{{ url('/tasks') }}',
         type: 'POST',
-        data: {
-            _token: $('meta[name="csrf-token"]').attr('content'),
-            name: taskName,
-            description: taskDesc,
-            status: taskStatus,
-            image_path: taskImagePath
-        },
+        data: formData,
+        processData: false,
+        contentType: false,
         success: function(response) {
             $('#tasksTable tbody').append(
                 '<tr data-id="' + response.id + '">' +
                 '<td>' + response.name + '</td>' +
                 '<td class="task-description">' + response.description + '</td>' +
                 '<td>' + response.status + '</td>' +
-                '<td><img src="' + response.image_path + '" alt="Task Image" class="task-image"></td>' +
+                '<td>' +
+                (response.images.length > 0 ? 
+                    '<img src="' + response.images[0].image_path + '" alt="Task Image" class="task-image">' : 
+                    'No Image') +
+                '</td>' +
                 '<td class="actions">' +
-                '<button class="edit" onclick="openModal(' + response.id + ', \'' + response.name + '\', \'' + response.description + '\', \'' + response.status + '\', \'' + response.image_path + '\')">Edit</button>' +
+                '<button class="edit" onclick="openModal(' + response.id + ', \'' + response.name + '\', \'' + response.description + '\', \'' + response.status + '\', \'' + (response.images.length > 0 ? response.images[0].image_path : '') + '\')">Edit</button>' +
                 '<button class="delete" onclick="deleteTask(' + response.id + ')">Delete</button>' +
                 '</td>' +
                 '</tr>'
@@ -440,48 +450,18 @@ $('#taskForm').on('submit', function(e) {
             $('#taskInput').val('');
             $('#descInput').val('');
             $('input[name="status"]').prop('checked', false);
-            $('#imagePathInput').val('');
+            $('#imageUpload').val(''); // Reset file input
         },
-        error: function() {
-            alert('Failed to create task.');
+        error: function(xhr) {
+            alert('Failed to create task: ' + xhr.responseText);
         }
     });
 });
 
-$('#editForm').on('submit', function(e) {
-    e.preventDefault();
-    var id = $('#editForm').data('id');
-    var taskName = $('#taskName').val();
-    var taskDesc = $('#taskDesc').val();
-    var taskStatus = $('input[name="status"]:checked').val(); // Get the selected status
-    var taskImagePath = $('#taskImagePath').val();
 
-    $.ajax({
-        url: '{{ url('/tasks') }}/' + id,
-        type: 'PUT',
-        data: {
-            _token: $('meta[name="csrf-token"]').attr('content'),
-            name: taskName,
-            description: taskDesc,
-            status: taskStatus,
-            image_path: taskImagePath
-        },
-        success: function(response) {
-            var row = $('#tasksTable tbody tr[data-id="' + id + '"]');
-            row.find('td').eq(0).text(response.name);
-            row.find('td').eq(1).text(response.description);
-            row.find('td').eq(2).text(response.status); // Ensure status is updated
-            row.find('img').attr('src', response.image_path);
 
-            closeModal();
-        },
-        error: function() {
-            alert('Failed to update task.');
-        }
-    });
-});
 
-window.deleteTask = function(id) {
+            window.deleteTask = function(id) {
     $.ajax({
         url: '{{ url('/tasks') }}/' + id,
         type: 'DELETE',
@@ -491,46 +471,57 @@ window.deleteTask = function(id) {
         success: function(response) {
             $('#tasksTable tbody tr[data-id="' + id + '"]').remove();
         },
-        error: function() {
-            alert('Error deleting task. Please try again.');
+        error: function(xhr) {
+            alert('Error deleting task: ' + xhr.responseText);
         }
     });
 };
 
-function openModal(id) {
-    $.ajax({
-        url: '{{ url('/tasks') }}/' + id,
-        type: 'GET',
-        success: function(response) {
-            // Populate modal with the latest data
-            $('#taskName').val(response.name);
-            $('#taskDesc').val(response.description);
-            $('#taskImagePath').val(response.image_path);
-            
-            // Set the status radio button
-            $('input[name="status"][value="' + response.status + '"]').prop('checked', true);
 
-            $('#editForm').data('id', response.id);
-            $('#editModal').show();
+window.openModal = function(id, name, description, status, imagePath) {
+    $('#editModal').find('input[name="id"]').val(id);
+    $('#editModal').find('input[name="name"]').val(name);
+    $('#editModal').find('textarea[name="description"]').val(description);
+    $('#editModal').find('input[name="status"][value="' + status + '"]').prop('checked', true);
+    $('#editModal').find('input[name="current_image"]').val(imagePath);
+    $('#editModal').find('img#currentImage').attr('src', imagePath ? '{{ asset('') }}' + imagePath : '');
+    $('#editModal').modal('show');
+};
+
+$('#editForm').on('submit', function(e) {
+    e.preventDefault();
+    var formData = new FormData(this); // Use FormData to handle file uploads
+
+    $.ajax({
+        url: '{{ url('/tasks') }}/' + $('input[name="id"]').val(),
+        type: 'PUT',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            var row = $('#tasksTable tbody tr[data-id="' + response.id + '"]');
+            row.find('td:eq(0)').text(response.name);
+            row.find('td:eq(1)').text(response.description);
+            row.find('td:eq(2)').text(response.status);
+            row.find('td:eq(3)').html(
+                response.images.length > 0 ? 
+                '<img src="' + response.images[0].image_path + '" alt="Task Image" class="task-image">' : 
+                'No Image'
+            );
+            $('#editModal').modal('hide');
         },
-        error: function() {
-            alert('Failed to fetch task data.');
+        error: function(xhr) {
+            alert('Failed to update task: ' + xhr.responseText);
         }
     });
-}
-
-function closeModal() {
-    $('#editModal').hide();
-    $('#taskName').val('');
-    $('#taskDesc').val('');
-    $('#taskImagePath').val('');
-    $('input[name="status"]').prop('checked', false);
-}
-$(window).on('click', function(event) {
-    if ($(event.target).is('#editModal')) {
-        closeModal();
-    }
 });
-</script>
 
-@endsection
+
+            $(window).on('click', function(event) {
+                if ($(event.target).is('#editModal')) {
+                    closeModal();
+                }
+            });
+        </script>
+
+        @endsection
